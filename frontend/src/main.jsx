@@ -16,7 +16,7 @@ const router = createBrowserRouter([
     element: <Home />,
   },
   {
-    path: '/cuenta',
+    path: '/cuenta/:accessCode',
     element: <Cuenta />,
   }
 ]);

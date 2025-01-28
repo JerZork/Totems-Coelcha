@@ -96,12 +96,12 @@ const Home = () => {
     const numbers = rutClean.slice(0, -1);
     let sum = 0;
     let multiplier = 2;
-    
+
     for (let i = numbers.length - 1; i >= 0; i--) {
-      sum += numbers[i] * multiplier;
+      sum += parseInt(numbers[i]) * multiplier;
       multiplier = multiplier === 7 ? 2 : multiplier + 1;
     }
-    
+
     const expectedVerifier = (11 - (sum % 11)).toString();
     const validVerifier = expectedVerifier === "10" ? "k" : expectedVerifier === "11" ? "0" : expectedVerifier;
     return verifier === validVerifier;
@@ -112,11 +112,15 @@ const Home = () => {
   };
 
   const handleRutChange = (key) => {
-    if (key === "←") {
-      setRut((prev) => formatRut(prev.slice(0, -1)));
-    } else {
-      setRut((prev) => formatRut(prev + key));
-    }
+    setRut((prev) => {
+      const newRut = key === "←" ? formatRut(prev.slice(0, -1)) : formatRut(prev + key);
+      setErrors(prevErrors => ({
+        ...prevErrors,
+        rut: validateRut(newRut) ? "" : translations.invalidRut
+      }));
+      return newRut;
+    });
+    resetInactivityTimer();
   };
 
   const handleCodeChange = (key) => {
@@ -143,7 +147,7 @@ const Home = () => {
     e.preventDefault();
     if (!errors.rut && !errors.code && validateRut(rut) && validateCode(accessCode)) {
       console.log("Form submitted", { rut, accessCode });
-      
+      navigate(`/cuenta/${accessCode}`);
     }
   };
 
@@ -201,7 +205,6 @@ const Home = () => {
           </div>
 
           <button
-            onClick={()=> navigate('/cuenta')}
             type="submit"
             className="w-full py-4 text-5xl font-bold text-white bg-blue-500 rounded-lg hover:bg-blue-700"
             disabled={!isFormValid}
