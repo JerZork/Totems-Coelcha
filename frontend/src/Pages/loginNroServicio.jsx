@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { BsQuestionCircle, BsExclamationCircle } from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
 import logo from "../assets/logoCoelcha.png";
+import { checkClienteExiste } from "../services/detallePagos.service.js";
 
 const NumericKeyboard = ({ onKeyPress, onClose, keys }) => {
   const keyboardRef = useRef(null);
@@ -21,7 +22,7 @@ const NumericKeyboard = ({ onKeyPress, onClose, keys }) => {
   }, [onClose]);
 
   return (
-    <div ref={keyboardRef} className="fixed bottom-0 left-0  w-full h-[24rem] bg-gray-950 shadow-lg py-8 px-60 border-t border-gray-300">
+    <div ref={keyboardRef} className="fixed bottom-0 left-0 w-full h-[24rem] bg-gray-950 shadow-lg py-8 px-60 border-t border-gray-300">
       <div className="grid grid-cols-3 gap-4 place-items-center">
         {keys.map((key) => (
           <button
@@ -33,21 +34,19 @@ const NumericKeyboard = ({ onKeyPress, onClose, keys }) => {
           </button>
         ))}
       </div>
-      <div className="mt-4 bg-gray-950 w-screen h-12  absolute left-0">
-        
-         </div>
-
+      <div className="mt-4 bg-gray-950 w-screen h-12 absolute left-0"></div>
     </div>
   );
 };
 
-const Home = () => {
+const loginNroServicio = () => {
   const [rut, setRut] = useState("");
   const [accessCode, setAccessCode] = useState("");
   const [showRutKeyboard, setShowRutKeyboard] = useState(false);
   const [showCodeKeyboard, setShowCodeKeyboard] = useState(false);
   const [errors, setErrors] = useState({ rut: "", code: "" });
   const [inactivityTimer, setInactivityTimer] = useState(null);
+  const [serviceError, setServiceError] = useState("");
   const rutInputRef = useRef(null);
   const codeInputRef = useRef(null);
   const navigate = useNavigate();
@@ -61,7 +60,8 @@ const Home = () => {
     help: "Ayuda",
     support: "¿Necesitas ayuda? Contacta soporte",
     invalidRut: "RUT inválido",
-    invalidCode: "Nro de servicio debe tener 1-5 caracteres numéricos"
+    invalidCode: "Nro de servicio debe tener 1-5 caracteres numéricos",
+    serviceNotFound: "Cliente no encontrado"
   };
 
   useEffect(() => {
@@ -108,7 +108,7 @@ const Home = () => {
   };
 
   const validateCode = (code) => {
-    return /^[a-zA-Z0-9]{1,5}$/.test(code);
+    return /^[0-9]{1,5}$/.test(code);
   };
 
   const handleRutChange = (key) => {
@@ -124,15 +124,14 @@ const Home = () => {
   };
 
   const handleCodeChange = (key) => {
-    if (key === "←") {
-      setAccessCode((prev) => prev.slice(0, -1));
-    } else {
-      setAccessCode((prev) => (prev + key).slice(0, 5));
-    }
-    setErrors(prev => ({
-      ...prev,
-      code: validateCode(accessCode) ? "" : translations.invalidCode
-    }));
+    setAccessCode((prev) => {
+      const newCode = key === "←" ? prev.slice(0, -1) : prev.length < 5 ? prev + key : prev;
+      setErrors(prev => ({
+        ...prev,
+        code: validateCode(newCode) ? "" : translations.invalidCode
+      }));
+      return newCode;
+    });
     resetInactivityTimer();
   };
 
@@ -140,27 +139,38 @@ const Home = () => {
     setRut("");
     setAccessCode("");
     setErrors({ rut: "", code: "" });
+    setServiceError("");
     rutInputRef.current?.focus();
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!errors.rut && !errors.code && validateRut(rut) && validateCode(accessCode)) {
-      console.log("Form submitted", { rut, accessCode });
-      navigate(`/cuenta/${accessCode}`);
+      try {
+        const response = await checkClienteExiste(accessCode);
+        if (response.message === "Cliente no encontrado") {
+          setServiceError(translations.serviceNotFound);
+        } else {
+          console.log("Form submitted", { rut, accessCode });
+          navigate(`/cuenta/${accessCode}`);
+        }
+      } catch (error) {
+        console.error('Error al verificar existencia de cliente', error);
+        setServiceError(translations.serviceNotFound);
+      }
     }
   };
 
   const isFormValid = !errors.rut && !errors.code && rut && accessCode;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-300 to-yellow-200 flex items-center justify-center p-4" onClick={resetInactivityTimer} style={{ height: "1802px", width: "1080px" }}>
+    <div className="min-h-screen bg-gradient-to-b from-[#0072ce] to-[#003087] flex items-center justify-center p-4" onClick={resetInactivityTimer} style={{ height: "1802px", width: "1080px" }}>
       <div className="w-[900px] h-[1350px] bg-white rounded-xl shadow-lg p-12 space-y-8 border-t-4 border-yellow-400">
         <header>
           <img src={logo} alt="Logo" />
         </header>
         <div className="text-center mb-8">
-          <h1 className="text-8xl  font-bold text-blue-900">{translations.title}</h1>
+          <h1 className="text-8xl font-bold text-blue-900">{translations.title}</h1>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-16 py-20">
@@ -211,6 +221,7 @@ const Home = () => {
           >
             {translations.submit}
           </button>
+          {serviceError && <p className="mt-2 text-red-500 text-lg">{serviceError}</p>}
         </form>
 
         {showRutKeyboard && (
@@ -247,4 +258,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default loginNroServicio;

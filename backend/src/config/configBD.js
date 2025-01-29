@@ -8,7 +8,7 @@ export const AppDataSource = new DataSource({
     host: baseDeDatos,
     username: usuario,
     password: contrasena,
-    database: 'facturacion_coelcha_respaldo',
+    database: 'facturacion_coelcha',
     entities: ['src/entities/**/*.js'],
 
 });

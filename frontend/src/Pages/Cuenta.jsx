@@ -6,7 +6,6 @@ import { es } from "date-fns/locale";
 import logo from "../assets/logoCoelcha.png";
 import { getDetallePagos } from "../services/detallePagos.service.js";
 
-
 const Cuenta = () => {
   const navigate = useNavigate();
   const { accessCode } = useParams();
@@ -14,15 +13,17 @@ const Cuenta = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [showDetails, setShowDetails] = useState(false);
+  const [showDetails, setShowDetails] = useState(true);
   const [debtData, setDebtData] = useState([]);
+  const [clientDetails, setClientDetails] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
         const data = await getDetallePagos(accessCode);
-        setDebtData(data);
+        setClientDetails(data.detalle[0]);
+        setDebtData(data.pagos);
       } catch (error) {
         setError("Error al obtener los datos de pagos");
       } finally {
@@ -69,7 +70,6 @@ const Cuenta = () => {
   };
 
   const handleLogout = () => {
-    // Aquí puedes agregar la lógica para cerrar sesión, como limpiar tokens, etc.
     navigate("/home");
   };
 
@@ -107,11 +107,32 @@ const Cuenta = () => {
   }
 
   return (
-    <div className="min-h-screen bg-blue-200 p-24 flex flex-col justify-center" style={{ height: "1802px", width: "1080px" }}>
+    <div className="min-h-screen bg-gradient-to-br from-[#0072ce] to-[#003087] p-24 flex flex-col justify-center" style={{ height: "1802px", width: "1080px" }}>
       <div className="bg-white rounded-xl shadow-lg p-12 mb-4 h-6/7">
         <header className="mb-6">
           <img src={logo} alt="Logo" className="mx-auto" />
         </header>
+
+        {clientDetails && (
+          <div className="mb-8 py-11 border-b pb-4 text-2xl font-bold text-gray-900">
+                        
+            <div className="flex justify-center text-4xl">
+              <p></p>
+              <p className="text-blue-900">{clientDetails.RAZON_SOCIAL}</p>
+            </div>            
+            <div className="flex justify-center">
+              <p></p>
+              <p>{clientDetails.DIR_NIVEL_AGRUPACION_1_EMPALME}</p>
+            </div>
+            <div className="flex justify-center">
+              <p>NRO. SERVICIO:&nbsp;</p>
+              <p> {clientDetails.NUMERO_SERVICIO}</p>
+            </div>
+
+
+          </div>
+        )}
+
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold text-gray-800">Cuentas Por Pagar</h1>
           <div className="flex gap-2">
@@ -169,27 +190,18 @@ const Cuenta = () => {
               </p>
             </div>
             <button
-              onClick={handlePaySelected}
-              className="p-2 rounded-lg bg-green-600 hover:bg-green-500 text-white transition-colors"
+              onClick={() => setShowDetails(!showDetails)}
+              className="p-2 rounded-lg bg-gray-200 hover:bg-gray-300 transition-colors flex items-center"
             >
-              Pagar Seleccionados
+              {showDetails ? <FiChevronUp className="w-5 h-5" /> : <FiChevronDown className="w-5 h-5" />}
+              <span className="ml-2">{showDetails ? "Ocultar Detalles" : "Mostrar Detalles"}</span>
             </button>
           </div>
         </div>
 
-        <div className="mb-6">
-          <button
-            onClick={() => setShowDetails(!showDetails)}
-            className="p-2 rounded-lg bg-gray-200 hover:bg-gray-300 transition-colors flex items-center"
-          >
-            {showDetails ? <FiChevronUp className="w-5 h-5" /> : <FiChevronDown className="w-5 h-5" />}
-            <span className="ml-2">{showDetails ? "Ocultar Detalles" : "Mostrar Detalles"}</span>
-          </button>
-        </div>
-
         {showDetails && (
-          <div className="space-y-4 max-h-[770px] overflow-y-auto">
-            {debtData.map((debt) => (
+          <div className="space-y-4 max-h-[670px] overflow-y-auto">
+            {debtData.map((debt, index) => (
               <div
                 key={debt.NUMFACTUR}
                 className={`p-4 rounded-lg transition-all ${
@@ -218,6 +230,13 @@ const Cuenta = () => {
                     {debt.ESTADO_DEUDA === "DV" ? "Deuda Vencida" : "Deuda Vigente"}
                   </span>
                 </div>
+                {index === debtData.length - 3 && (
+                  <div className="flex justify-end">
+                    <span className="px-2 py-1 rounded-full text-sm bg-amber-100 text-amber-700">
+                      Pago mínimo para Reposicion
+                    </span>
+                  </div>
+                )}
                 <div className="pl-8">                  
                   <p className="text-lg font-semibold text-gray-800">
                     ${parseFloat(debt.SALDO).toLocaleString()}
@@ -227,10 +246,20 @@ const Cuenta = () => {
                     <span>{debt.NUMFACTUR}</span>
                   </div>
                 </div>
+
               </div>
             ))}
           </div>
         )}
+
+        <div className="flex justify-center mt-6">
+          <button
+            onClick={handlePaySelected}
+            className="p-2 rounded-lg bg-green-600 hover:bg-green-500 text-white transition-colors"
+          >
+            Pagar Seleccionados
+          </button>
+        </div>
       </div>
     </div>
   );
