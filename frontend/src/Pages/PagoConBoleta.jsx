@@ -1,11 +1,14 @@
 import '../styles/Home.css';
 import React, { useState, useEffect, useRef } from "react";
-import { BsQuestionCircle, BsExclamationCircle } from "react-icons/bs";
+import { BsQuestionCircle } from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
 import logo from "../assets/logoCoelcha.png";
 import { checkClienteExiste } from "../services/detallePagos.service.js";
+import { getNroService } from "../services/detallePagos.service.js";
+import boletaejemplo from "../assets/BOLETAEJEMPLO.png";
+import manosdoc from "../assets/manosdoc.svg";
 
-const Home = () => {
+const PagoConBoleta = () => {
   const [accessCode, setAccessCode] = useState("");
   const [errors, setErrors] = useState({ code: "" });
   const [inactivityTimer, setInactivityTimer] = useState(null);
@@ -14,8 +17,8 @@ const Home = () => {
   const navigate = useNavigate();
 
   const translations = {
-    title: "Paga tu cuenta de electricidad",
-    codeLabel: "Número de Servicio",
+    title: "Porfavor Escanear su Boleta",
+    codeLabel: "Número de boleta electrónica",
     submit: "Ingresar",
     reset: "Limpiar",
     help: "Ayuda",
@@ -26,7 +29,20 @@ const Home = () => {
 
   useEffect(() => {
     resetInactivityTimer();
-    return () => clearTimeout(inactivityTimer);
+    codeInputRef.current?.focus();
+    
+    // Agregar listener para mantener el foco
+    const handleBlur = () => {
+      codeInputRef.current?.focus();
+    };
+    
+    const inputElement = codeInputRef.current;
+    inputElement?.addEventListener('blur', handleBlur);
+
+    return () => {
+      inputElement?.removeEventListener('blur', handleBlur);
+      clearTimeout(inactivityTimer);
+    };
   }, []);
 
   const resetInactivityTimer = () => {
@@ -39,11 +55,11 @@ const Home = () => {
   };
 
   const validateCode = (code) => {
-    return /^[a-zA-Z0-9]{1,5}$/.test(code);
+    return /^[0-9]{0,12}$/.test(code);
   };
 
   const handleCodeChange = (value) => {
-    setAccessCode(value.slice(0, 8));
+    setAccessCode(value.slice(0, 12));
     setErrors(prev => ({
       ...prev,
       code: validateCode(value) ? "" : translations.invalidCode
@@ -58,79 +74,99 @@ const Home = () => {
     codeInputRef.current?.focus();
   };
 
+  function formatearCadena(cadena) {
+    if (isNaN(cadena[0])) {
+      cadena = cadena.substring(1);
+    }
+
+    let numeros = '';
+    for (let char of cadena) {
+      if (!isNaN(char) && char !== ' ') {
+        numeros += char;
+      } else {
+        break;
+      }
+    }
+    return numeros;
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!errors.code && validateCode(accessCode)) {
+    let numeros = formatearCadena(accessCode);
+    const nservicio = await getNroService(numeros);
+
+    if (nservicio.length > 0) {
       try {
-        const response = await checkClienteExiste(accessCode);
+        const response = await checkClienteExiste(nservicio[0].NUMERO_SERVICIO);
         if (response.message === "Cliente no encontrado") {
           setServiceError(translations.serviceNotFound);
         } else {
-          console.log("Form submitted", { accessCode });
-          navigate(`/cuenta/${accessCode}`);
+          navigate(`/cuenta/${nservicio[0].NUMERO_SERVICIO}`);
         }
       } catch (error) {
-        console.error('Error al verificar existencia de cliente', error);
-        setServiceError(translations.serviceNotFound);
+        console.error(error);
       }
     }
   };
 
-  const isFormValid = !errors.code && accessCode;
+  const handleLogout = () => {
+    navigate("/");
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#0072ce] to-[#003087] flex items-center justify-center p-4" onClick={resetInactivityTimer} style={{ height: "1802px", width: "1080px" }}>
-      <div className="w-[900px] h-[1350px] bg-white rounded-xl shadow-lg p-12 space-y-8 border-t-4 border-yellow-400">
-        <header>
-          <img src={logo} alt="Logo" />
-        </header>
-        <div className="text-center mb-8">
-          <h1 className="text-8xl font-bold text-blue-900">{translations.title}</h1>
+    <div className="min-h-screen bg-gradient-to-b from-[#0072ce] to-[#003087] flex justify-center items-center">
+      <div className="w-[900px] h-[1740px] bg-white rounded-xl shadow-lg p-12 space-y-8 border-t-4 border-yellow-400 pointer-events-none">
+        
+        {/* Botón Volver con excepción */}
+        <div className="flex gap-2 justify-end pointer-events-auto">
+          <button
+            onClick={handleLogout}
+            className="p-4 rounded-lg bg-red-700 hover:bg-red-600 text-white transition-colors"
+          >
+            Volver
+          </button>
         </div>
+        <div className="relative pointer-events-auto ">
+              
+            </div>
+        <header> 
+          <h1 className="flex justify-center text-5xl font-bold text-blue-950">{translations.title}</h1>
+          <h2 className="flex justify-center text-3xl font-bold text-slate-600 space-y-12">Acercar código de barras al lector</h2>
+          <div className='flex justify-center '>
+            <img className="py-" src={boletaejemplo} alt="Boleta de Ejemplo" />
+            
+          </div>
+        </header>
+        <div className='flex justify-center'>  
+          <img src={manosdoc} alt="Manos Documento" />
+        </div>
+        
 
-        <form onSubmit={handleSubmit} className="space-y-16 py-20">
-          <div>
-            <label className="block text-5xl font-medium text-blue-900 mb-3">
-              {translations.codeLabel}
-            </label>
-            <div className="relative">
-              <input
+        <form onSubmit={handleSubmit} className="space-y-16">
+        <input
                 ref={codeInputRef}
                 type="text"
                 value={accessCode}
                 onChange={(e) => handleCodeChange(e.target.value)}
-                className={`w-full px-6 py-4 text-5xl border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.code ? "border-red-500" : "border-yellow-300"}`}
+                className={`w-10 px-0 py-0 text-2xl border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                  errors.code ? "border-red-500" : "border-yellow-300"
+                }`}
+                style={{position: 'absolute', zIndex: -1 }}
+                onBlur={() => codeInputRef.current?.focus()}
               />
-            </div>
+          <div>
+
             {errors.code && <p className="mt-2 text-red-500 text-lg">{errors.code}</p>}
           </div>
 
-          <button
-            type="submit"
-            className="w-full py-4 text-5xl font-bold text-white bg-blue-500 rounded-lg hover:bg-blue-700"
-            disabled={!isFormValid}
-          >
-            {translations.submit}
-          </button>
           {serviceError && <p className="mt-2 text-red-500 text-lg">{serviceError}</p>}
         </form>
 
-        <div className="pt-16 border-t border-yellow-200">
-          <div className="flex justify-between items-center text-3xl text-blue-800">
-            <button
-              type="button"
-              className="flex items-center space-x-2 hover:text-yellow-600"
-              onClick={() => console.log("Help clicked")}
-            >
-              <BsQuestionCircle size={24} />
-              <span>{translations.help}</span>
-            </button>
-            <span>{translations.support}</span>
-          </div>
-        </div>
+        
+        
       </div>
     </div>
   );
 };
 
-export default Home;
+export default PagoConBoleta;

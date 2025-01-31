@@ -10,7 +10,7 @@ const HomePagos = () => {
   const translations = {
     title: "Paga tu cuenta de electricidad",
     loginWithServiceNumber: "Ingresar con número de servicio",
-    payWithReceipt: "Pagar con boleta"
+    payWithReceipt: "Escanear boleta"
   };
 
   useEffect(() => {

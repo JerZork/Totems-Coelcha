@@ -1,4 +1,5 @@
 import { checkClienteExiste } from "../Services/clienteDetalle.service.js";
+import { obtenerConBoleta } from "../Services/clienteDetalle.service.js";
 
 export const verificarCliente = async (req, res) => {
     try {
@@ -17,5 +18,23 @@ export const verificarCliente = async (req, res) => {
     } catch (error) {
         console.error('Error al verificar existencia de cliente', error);
         res.status(500).json({ message: 'Error al verificar existencia de cliente' });
+    }
+}
+
+export const obtenerNroser = async (req, res) => {
+    try {
+        console.log('Obteniendo nroser');
+        const nroFactura = req.params.nroFactura;
+        
+        const nroser = await obtenerConBoleta(nroFactura);
+        console.log('Nroser obtenido', nroser);
+        
+        res
+            .status(200)
+            .send(nroser);
+
+    } catch (error) {
+        console.error('Error al obtener nroser', error);
+        res.status(500).json({ message: 'Error al obtener numero de servicio' });
     }
 }

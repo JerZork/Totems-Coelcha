@@ -41,3 +41,22 @@ WHERE e.NUMERO_SERVICIO = ?;
     }
 }
 
+export const obtenerConBoleta = async (nroServicio) => {
+    console.log('nroServicio: antes de obtener con boleta', nroServicio);
+    
+    const selectQuery = `
+  
+SELECT NUMERO_SERVICIO FROM documentos e
+WHERE e.NUMERO_DOCUMENTO = ?;
+    `;
+    console.log('termino obtener con boleta');
+    try {
+        const result = await AppDataSource.query(selectQuery, [nroServicio]);
+        return result;
+        
+    } catch (error) {
+        console.log('Error en obtener con boleta ', error);
+        throw new Error('Error en obtener con boleta ');
+        
+    }
+}

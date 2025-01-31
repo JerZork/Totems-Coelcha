@@ -39,7 +39,7 @@ const NumericKeyboard = ({ onKeyPress, onClose, keys }) => {
   );
 };
 
-const loginNroServicio = () => {
+const LoginNroServicio = () => {
   const [rut, setRut] = useState("");
   const [accessCode, setAccessCode] = useState("");
   const [showRutKeyboard, setShowRutKeyboard] = useState(false);
@@ -162,10 +162,21 @@ const loginNroServicio = () => {
   };
 
   const isFormValid = !errors.rut && !errors.code && rut && accessCode;
+  const handleLogout = () => {
+    navigate("/");
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#0072ce] to-[#003087] flex items-center justify-center p-4" onClick={resetInactivityTimer} style={{ height: "1802px", width: "1080px" }}>
       <div className="w-[900px] h-[1350px] bg-white rounded-xl shadow-lg p-12 space-y-8 border-t-4 border-yellow-400">
+      <div className="flex gap-2 justify-end">
+              <button
+                onClick={handleLogout}
+                className="p-4 rounded-lg bg-red-700 hover:bg-red-600 text-white transition-colors"
+              >
+                Volver
+              </button>
+            </div>
         <header>
           <img src={logo} alt="Logo" />
         </header>
@@ -240,7 +251,7 @@ const loginNroServicio = () => {
           />
         )}
 
-        <div className="pt-16 border-t border-yellow-200">
+        <div className="pt-1 border-t border-yellow-200">
           <div className="flex justify-between items-center text-3xl text-blue-800">
             <button
               type="button"
@@ -258,4 +269,4 @@ const loginNroServicio = () => {
   );
 };
 
-export default loginNroServicio;
+export default LoginNroServicio;
