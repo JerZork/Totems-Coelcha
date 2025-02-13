@@ -101,7 +101,8 @@ const PagoConBoleta = () => {
         if (response.message === "Cliente no encontrado") {
           setServiceError(translations.serviceNotFound);
         } else {
-          navigate(`/cuenta/${nservicio[0].NUMERO_SERVICIO}`);
+          sessionStorage.setItem('nroservice', JSON.stringify(nservicio[0].NUMERO_SERVICIO));
+          navigate(`/cuenta/`);
         }
       } catch (error) {
         console.error(error);
@@ -110,14 +111,14 @@ const PagoConBoleta = () => {
   };
 
   const handleLogout = () => {
-    navigate("/");
+    navigate("/home");
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#0072ce] to-[#003087] flex justify-center items-center">
       <div className="w-[900px] h-[1740px] bg-white rounded-xl shadow-lg p-12 space-y-8 border-t-4 border-yellow-400 pointer-events-none">
         
-        {/* Botón Volver con excepción */}
+      
         <div className="flex gap-2 justify-end pointer-events-auto">
           <button
             onClick={handleLogout}

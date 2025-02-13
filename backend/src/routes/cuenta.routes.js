@@ -4,6 +4,6 @@ import { obtenerPagos } from "../controllers/pagos.controller.js";
 const router = Router();
 
 router
-    .get('/:nroservice', obtenerPagos);
+    .post('/', obtenerPagos);
 
 export default router;

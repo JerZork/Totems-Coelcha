@@ -1,5 +1,7 @@
 import { DataSource } from 'typeorm';
 import { baseDeDatos, usuario, contrasena } from './configEnv.js';
+import Recaudacion_Pagos from '../entity/recaudacion_pagos.entity.js';
+import Usuarios from '../entity/Usuarios.js';
 
 
 
@@ -8,8 +10,8 @@ export const AppDataSource = new DataSource({
     host: baseDeDatos,
     username: usuario,
     password: contrasena,
-    database: 'facturacion_coelcha',
-    entities: ['src/entities/**/*.js'],
+    database: 'facturacion_coelcha_respaldo',
+    entities: ['src/entities/**/*.js', Recaudacion_Pagos, Usuarios],
 
 });
 

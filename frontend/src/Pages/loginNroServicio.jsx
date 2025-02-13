@@ -1,7 +1,7 @@
 import '../styles/Home.css';
 import React, { useState, useEffect, useRef } from "react";
 import { BsQuestionCircle, BsExclamationCircle } from "react-icons/bs";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom"; // Import useLocation
 import logo from "../assets/logoCoelcha.png";
 import { checkClienteExiste } from "../services/detallePagos.service.js";
 
@@ -49,7 +49,9 @@ const LoginNroServicio = () => {
   const [serviceError, setServiceError] = useState("");
   const rutInputRef = useRef(null);
   const codeInputRef = useRef(null);
+
   const navigate = useNavigate();
+  const numeroServicioRef = useRef(null);
 
   const translations = {
     title: "Paga tu cuenta de electricidad",
@@ -61,7 +63,8 @@ const LoginNroServicio = () => {
     support: "¿Necesitas ayuda? Contacta soporte",
     invalidRut: "RUT inválido",
     invalidCode: "Nro de servicio debe tener 1-5 caracteres numéricos",
-    serviceNotFound: "Cliente no encontrado"
+    serviceNotFound: "Cliente no encontrado",
+    consultaError: "Error en la consulta a la base de datos"
   };
 
   useEffect(() => {
@@ -148,22 +151,27 @@ const LoginNroServicio = () => {
     if (!errors.rut && !errors.code && validateRut(rut) && validateCode(accessCode)) {
       try {
         const response = await checkClienteExiste(accessCode);
+
         if (response.message === "Cliente no encontrado") {
           setServiceError(translations.serviceNotFound);
         } else {
-          console.log("Form submitted", { rut, accessCode });
-          navigate(`/cuenta/${accessCode}`);
+          sessionStorage.setItem('nroservice', JSON.stringify(accessCode));
+          navigate('/cuenta/'); // Navigate without the number in the URL
         }
       } catch (error) {
         console.error('Error al verificar existencia de cliente', error);
-        setServiceError(translations.serviceNotFound);
+        if (error.message.includes('consulta sql')) {
+          setServiceError('Error en la consulta SQL al verificar la existencia del cliente.');
+        } else {
+          setServiceError(translations.serviceNotFound);
+        }
       }
     }
   };
 
   const isFormValid = !errors.rut && !errors.code && rut && accessCode;
   const handleLogout = () => {
-    navigate("/");
+    navigate("/home");
   };
 
   return (
