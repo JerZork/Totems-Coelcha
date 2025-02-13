@@ -1,7 +1,7 @@
 import { AppDataSource } from "../config/configBD.js";
 
 export const getPagos = async (nroServicio) => {
-    console.log('nroServicio: antes de entrara a la consulta', nroServicio);
+
     
     const setServicioQuery = `SET @servicio=${nroServicio};`;
     const selectQuery = `
@@ -60,7 +60,7 @@ GROUP BY T.NUMFACTUR
 HAVING SALDO > 0;
     `;
 
-    console.log('termino de la consulta');
+
     try {
 
         const result = await AppDataSource.query(selectQuery, [nroServicio, nroServicio, nroServicio]);

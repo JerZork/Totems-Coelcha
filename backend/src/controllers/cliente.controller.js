@@ -3,11 +3,11 @@ import { obtenerConBoleta } from "../Services/clienteDetalle.service.js";
 
 export const verificarCliente = async (req, res) => {
     try {
-        console.log('Verificando existencia de cliente');
+      
         const nroServicio = req.params.nroServicio;
         
         const existe = await checkClienteExiste(nroServicio);
-        console.log('Existencia de cliente verificada', existe);
+        
         
         if (existe) {
             res.status(200).json({ message: 'True' });
@@ -23,11 +23,11 @@ export const verificarCliente = async (req, res) => {
 
 export const obtenerNroser = async (req, res) => {
     try {
-        console.log('Obteniendo nroser');
+        
         const nroFactura = req.params.nroFactura;
         
         const nroser = await obtenerConBoleta(nroFactura);
-        console.log('Nroser obtenido', nroser);
+    
         
         res
             .status(200)
