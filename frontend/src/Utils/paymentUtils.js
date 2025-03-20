@@ -2,6 +2,7 @@
 import { PostAbonos } from "../services/abono.service.js";
 
 export const handlePayAll = async (debtData, clientDetails, totalDebt, setOperationResult, setShowOperationPopup, generatePaymentReceiptContent) => {
+  
   const user = JSON.parse(sessionStorage.getItem('user') || '{}');
   try {
     const payload = debtData.map(debt => ({
@@ -13,18 +14,37 @@ export const handlePayAll = async (debtData, clientDetails, totalDebt, setOperat
       Sucursal: user.Sucursal,
       CODIGO_AUTORIZACION: 1,
       IDENTIFICADOR: "1",
-      ID_AGRUPACION_CONTABLE: clientDetails.ID_AGRUPACION_CONTABLE
+      ID_AGRUPACION_CONTABLE: clientDetails.ID_AGRUPACION_CONTABLE,
+      idTerminal: 80000382,  //cambiar
+      serialNumber: "232UKD8Y7539",  //cambiar
+      amount: totalDebt, // Se mantiene el monto total para cada pago según tu indicación
+      ticketNumber: "1235", //cambiar
+      saleType: 0, //consultar
+      employeeId: 1,  //consultar
+      customId: "1234", //consultar
     }));
 
-    await PostAbonos(payload);
+    console.log("Payload generado:", payload); // Para que veas el array de jsons generado
+
+    response=await PostAbonos(payload);
+    
     setOperationResult({ success: true, message: "Pago realizado con éxito" });
     setShowOperationPopup(true);
     generatePaymentReceiptContent(clientDetails, debtData, totalDebt);
   } catch (error) {
-    setOperationResult({ success: false, message: "Error al realizar el pago" });
+    const errorMessage = error.message || "Error al realizar el pago";
+    setOperationResult({ success: false, message: errorMessage });
     setShowOperationPopup(true);
   }
+
+
 };
+
+
+
+
+
+
 
 export const handlePaySelected = async (selectedDebts, clientDetails, totalSelectedDebt, setOperationResult, setShowOperationPopup, generatePaymentReceiptContent) => {
   const user = JSON.parse(sessionStorage.getItem('user'));

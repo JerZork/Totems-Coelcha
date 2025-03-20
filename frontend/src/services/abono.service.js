@@ -4,19 +4,14 @@ export async function PostAbonos(body) {
   try {
     console.log("entrando a postAbonos", body);
 
-    const results = [];
-    body.forEach(async (item) => {
 
-      const response = await axios.post(`/api/abono`, item);
-      results.push(response.data);
-
-
-
-    });
+      const response = await axios.post(`/api/abono`, body);
+ 
 
     return results;
   } catch (error) {
-    console.error("Error en la consulta sql de obtener abonos", error);
-    throw new Error(`Error en la consulta sql de obtener abonos: ${error.message}`);
+    console.log("Error en postAbonos", error.response.data.message);
+    console.error("Error en la consulta sql de obtener abonoss", error.response);
+    throw new Error(`${error.response.data.message}`);
   }
 }

@@ -66,7 +66,7 @@ export const ConCliente = async (nroServicio) => {
 
     const selectQuery = `SELECT RUT_CLIENTE , SOCIO_CLIENTE FROM contratos c
 WHERE c.NUMERO_SERVICIO = ? ;`;
-console.log(selectQuery);
+
 
 
     try {
@@ -74,7 +74,7 @@ console.log(selectQuery);
         return result;
 
     } catch (error) {
-        console.log('Error en consultar cliente detalle ', error);
+        console.log('Error en consultar cliente detalle ');
         throw new Error('Error en consultar cliente detalle ');
 
     }
@@ -89,9 +89,12 @@ FROM  Usuarios u
 WHERE u.NombreUsuario = ? AND u.Password = ?
     `;
         const result = await AppDataSource.query(selectQuery, [username, password]);
+
+        
         if (result.length > 0) {
             return result[0];
         }
+ 
         return null;
 
     } catch (error) {
