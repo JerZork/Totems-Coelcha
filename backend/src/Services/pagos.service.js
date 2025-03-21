@@ -123,6 +123,8 @@ export const insertarAbono = async (data) => {
         });
 
         await abonoRepository.save(newAbono);
+
+
         return newAbono;
 
     } catch (error) {

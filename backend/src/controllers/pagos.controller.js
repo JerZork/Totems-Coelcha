@@ -7,7 +7,6 @@ export const obtenerPagos = async (req, res) => {
     try {
 
         const nroservice = req.body.nroservice;
-
         const data = await getPagos(nroservice);
         const detalle = await getClienteDetalle(nroservice);
 
@@ -60,15 +59,18 @@ export const insertarAbono = async (req, res) => {
             response_operacion = await respuesta_operacion(response_venta.data.data.idPosTxs, response, body[0].idTerminal, body[0].serialNumber, body[0].customId);
             await delay(2000);
             
-            console.log('1111111111111111111111111111111111111111');
-           console.log(response_operacion.data.code);
+
         } while (response_operacion.data.code == 2);
 
 
         if (response_operacion.data.data.response.responseCode== 0) {
-            console.log('Transacción exitosa');
-            const fecha_actual = new Date();
+
+        // const auxiliar = 0
+        //     if (auxiliar== 0) { 
+
             let resultadosInsercion = [];
+            console.log('Transacción exitosa');
+            const fecha_actual = new Date().toISOString();
 
             for (const pago of body) {
                 console.log('Procesando pago:', pago);
@@ -77,16 +79,17 @@ export const insertarAbono = async (req, res) => {
 
                     //INSERCION A BASE DE DATOS
                     const data = {
-                        tipo: "W",
+                        tipo: "g",
                         monto: pago.monto,
                         glosa: pago.glosa,
                         NUMSOC: pago.NUMSOC,
                         NUMFACTUR: pago.NUMFACTUR,
-                        FECHA: fecha_actual,
+                        FECHA: fecha_actual, //cambiar a fecha contable
                         DEBE1: 0,
                         HABER1: pago.monto,
                         operacion_pago: "pago",
                         usuario: pago.usuario,
+                        fecha_actual: fecha_actual,
                         Tipo_Documento: "B",
                         Sucursal: pago.Sucursal,
                         re_id: null,
@@ -94,14 +97,14 @@ export const insertarAbono = async (req, res) => {
                         RUT_TITULAR: detalle[0].RUT_CLIENTE,
                         SOCIO_CLIENTE: detalle[0].SOCIO_CLIENTE,
                         ID_AGRUPACION_CONTABLE: pago.ID_AGRUPACION_CONTABLE,
-                        CODIGO_AUTORIZACION: pago.CODIGO_AUTORIZACION,
-                        IDENTIFICADOR: pago.IDENTIFICADOR,
                     };
                     const newAbono = await insertarAbonoService(data);
                     resultadosInsercion.push({ success: true, abono: newAbono });
+                   
 
                 } catch (error) {
                     console.log('Error al insertar el abono:');
+                    console.log(error);
                     return res.status(500).json({
                         message: 'Error al insertar los abonos',
                         error: error.message
@@ -111,7 +114,7 @@ export const insertarAbono = async (req, res) => {
                 }
             }
 
-            res.status(201).json({
+            return res.status(201).json({
                 message: 'Abonos insertados correctamente',
                 resultados: resultadosInsercion
             });

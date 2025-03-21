@@ -6,6 +6,7 @@ dotenv.config()
 export const baseDeDatos = process.env.BASE_DE_DATOS
 export const usuario = process.env.USUARIOBD
 export const contrasena = process.env.CONTRASENABD
+export const database = process.env.DATABASE
 
 //getnet
 export const urlGetnet= process.env.URL_GETNET

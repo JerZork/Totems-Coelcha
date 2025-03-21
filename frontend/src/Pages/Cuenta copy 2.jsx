@@ -228,7 +228,7 @@ const Cuenta = () => {
           </div>
         </div> */}
 
-                <div className="flex bg-green-500/10 py-4 px-5 rounded-lg">
+<div className="flex bg-green-500/10 py-4 px-5 rounded-lg">
           <span className="text-green-600">
             <p className="text-2xl font-semibold">Salto Total:</p>
             <p className="text-3xl font-bold">${totalDebt.toLocaleString('es-ES')}</p>

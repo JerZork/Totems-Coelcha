@@ -4,29 +4,34 @@ import { PostAbonos } from "../services/abono.service.js";
 export const handlePayAll = async (debtData, clientDetails, totalDebt, setOperationResult, setShowOperationPopup, generatePaymentReceiptContent) => {
   
   const user = JSON.parse(sessionStorage.getItem('user') || '{}');
+  let agrupacion;
+  if (clientDetails.NUMERO_SERVICIO<50000){
+     agrupacion = 1;
+  }else{
+     agrupacion = 2;
+  }
+
   try {
     const payload = debtData.map(debt => ({
-      monto: 1,
+      monto: debt.SALDO,
       glosa: "Pago TOTEM WS por sistema",
       NUMSOC: clientDetails.NUMERO_SERVICIO,
       NUMFACTUR: debt.NUMFACTUR,
       usuario: user.NombreUsuario,
-      Sucursal: user.Sucursal,
-      CODIGO_AUTORIZACION: 1,
-      IDENTIFICADOR: "1",
-      ID_AGRUPACION_CONTABLE: clientDetails.ID_AGRUPACION_CONTABLE,
+      Sucursal: user.Sucursal,  
+      ID_AGRUPACION_CONTABLE: agrupacion,
       idTerminal: 80000382,  //cambiar
       serialNumber: "232UKD8Y7539",  //cambiar
       amount: totalDebt, // Se mantiene el monto total para cada pago según tu indicación
       ticketNumber: "1235", //cambiar
       saleType: 0, //consultar
       employeeId: 1,  //consultar
-      customId: "1234", //consultar
+      customId: "000011111222222", //consultar
     }));
-
-    console.log("Payload generado:", payload); // Para que veas el array de jsons generado
-
-    response=await PostAbonos(payload);
+    console.log("5555555555555555555555555555555555555555555555555555555555");
+    const response=await PostAbonos(payload);
+    console.log("6666666666666666666666666666666666666666666666666666666666");  
+    console.log(response);
     
     setOperationResult({ success: true, message: "Pago realizado con éxito" });
     setShowOperationPopup(true);
