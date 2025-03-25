@@ -1,4 +1,4 @@
-import { getPagos } from "../Services/pagos.service.js";
+import { getPagos, getReId, FehcaContable, getplanilla, crearPlanilla } from "../Services/pagos.service.js";
 import { ConCliente, getClienteDetalle } from '../Services/clienteDetalle.service.js';
 import { insertarAbono as insertarAbonoService } from '../Services/pagos.service.js';
 import { loginGetNet, PollingGetNet, Venta, respuesta_operacion } from '../controllers/getnet.controller.js';
@@ -30,10 +30,11 @@ const COD_DOC = (NUMSOC, NUMFACTUR) => {
     return `${paddedNUMSOC}BE${paddedNUMFACTUR}`;
 };
 
+
+
+
 export const insertarAbono = async (req, res) => {
-    console.log('en backend1111111');
     try {
-        console.log('en backend');
 
         const body = req.body;
         console.log('Cuerpo de la petición:', body);
@@ -70,7 +71,28 @@ export const insertarAbono = async (req, res) => {
 
             let resultadosInsercion = [];
             console.log('Transacción exitosa');
-            const fecha_actual = new Date().toISOString();
+            const fecha_actual = new Date();
+            
+       
+         
+            const fecha_contable = await FehcaContable();
+
+
+            let numeroPlanilla = await getplanilla(fecha_contable, body[0].ID_AGRUPACION_CONTABLE  );
+           
+
+        
+
+            if (numeroPlanilla.length == 0) {
+                const respuesta= await crearPlanilla(body[0].ID_AGRUPACION_CONTABLE, fecha_contable, body[0].usuario, fecha_actual);
+            
+                numeroPlanilla = await getplanilla(fecha_contable, body[0].ID_AGRUPACION_CONTABLE );
+            }
+
+
+
+            const re_id= await getReId()
+  
 
             for (const pago of body) {
                 console.log('Procesando pago:', pago);
@@ -84,7 +106,7 @@ export const insertarAbono = async (req, res) => {
                         glosa: pago.glosa,
                         NUMSOC: pago.NUMSOC,
                         NUMFACTUR: pago.NUMFACTUR,
-                        FECHA: fecha_actual, //cambiar a fecha contable
+                        FECHA: fecha_contable, 
                         DEBE1: 0,
                         HABER1: pago.monto,
                         operacion_pago: "pago",
@@ -92,11 +114,13 @@ export const insertarAbono = async (req, res) => {
                         fecha_actual: fecha_actual,
                         Tipo_Documento: "B",
                         Sucursal: pago.Sucursal,
-                        re_id: null,
+                        re_id: re_id,
                         CODIGO_DOCUMENTO: COD_DOC(pago.NUMSOC, pago.NUMFACTUR),
                         RUT_TITULAR: detalle[0].RUT_CLIENTE,
                         SOCIO_CLIENTE: detalle[0].SOCIO_CLIENTE,
                         ID_AGRUPACION_CONTABLE: pago.ID_AGRUPACION_CONTABLE,
+                        PLANILLA_NUM: numeroPlanilla,
+                        
                     };
                     const newAbono = await insertarAbonoService(data);
                     resultadosInsercion.push({ success: true, abono: newAbono });
@@ -127,10 +151,13 @@ export const insertarAbono = async (req, res) => {
 
 
     } catch (error) {
-        console.error('Error general al insertar los abonos:',);
+        console.error('Error general al insertar los abonos:',error);
         return res.status(500).json({
             message: 'Error al insertar los abonos',
             error: error.message
         });
     }
 };
+
+
+

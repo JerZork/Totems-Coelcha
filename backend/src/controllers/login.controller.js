@@ -2,7 +2,7 @@ import { checkLogin } from '../Services/clienteDetalle.service.js';
 export const LogUsuario = async (req, res) => {
     try {
         const { username, password } = req.body;
-        console.log(username, password);
+     
         const user = await checkLogin(username, password);
         
         

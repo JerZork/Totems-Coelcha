@@ -4,22 +4,26 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import logo from "../assets/logoCoelcha.png";
 import { BsExclamationCircle } from "react-icons/bs";
+import { useAuth } from '../middleware/authContext.jsx'; // Importa el hook useAuth
 
 const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState({ username: "", password: "" });
   const [loginError, setLoginError] = useState("");
-  const navigate = useNavigate();
+  // const navigate = useNavigate(); // Ya no necesitamos navigate aquí
+
+  const { login } = useAuth();
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
       const response = await axios.post('/api/login', { username, password });
       if (response.status === 200) {
-        // Guardar el response en sessionStorage
-        sessionStorage.setItem('user', JSON.stringify(response.data));
-        navigate('/home');
+        // Guarda la información del usuario y actualiza el contexto
+        login(response.data);
+      } else {
+        setLoginError('Login failed');
       }
     } catch (error) {
       setLoginError('Login failed');

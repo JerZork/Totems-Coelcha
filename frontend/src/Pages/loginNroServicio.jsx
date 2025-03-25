@@ -156,6 +156,7 @@ const LoginNroServicio = () => {
           setServiceError(translations.serviceNotFound);
         } else {
           sessionStorage.setItem('nroservice', JSON.stringify(accessCode));
+          sessionStorage.setItem('rutDepositante', JSON.stringify(rut));
           navigate('/cuenta/'); // Navigate without the number in the URL
         }
       } catch (error) {

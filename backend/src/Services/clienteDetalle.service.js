@@ -84,11 +84,12 @@ WHERE c.NUMERO_SERVICIO = ? ;`;
 export const checkLogin = async (username, password) => {
     try {
         const selectQuery = `
-SELECT NombreUsuario, Sucursal
-FROM  Usuarios u 
-WHERE u.NombreUsuario = ? AND u.Password = ?
+SELECT usuario, sucursal,pos_serialnumber, pos_idterminal, id_totem
+FROM  totem_identificacion u 
+WHERE u.usuario = ? AND u.password = ?
     `;
         const result = await AppDataSource.query(selectQuery, [username, password]);
+       
 
         
         if (result.length > 0) {

@@ -1,42 +1,58 @@
 // frontend/src/utils/paymentUtils.js
+import { act, use } from "react";
 import { PostAbonos } from "../services/abono.service.js";
 
 export const handlePayAll = async (debtData, clientDetails, totalDebt, setOperationResult, setShowOperationPopup, generatePaymentReceiptContent) => {
   
   const user = JSON.parse(sessionStorage.getItem('user') || '{}');
+ 
+
+  let hora_actual = new Date();
+  hora_actual = hora_actual.getHours() + hora_actual.getMinutes() + hora_actual.getSeconds();
+  const customId = user.pos_serialnumber.slice(-4) + clientDetails.NUMERO_SERVICIO + hora_actual;
+  const rutDepositante = JSON.parse(sessionStorage.getItem("rutDepositante"));
+  let formattedRutDepositante = rutDepositante.replace(/\./g, '');
+  if (formattedRutDepositante.length > 10) {
+    formattedRutDepositante = formattedRutDepositante.slice(0, 10);
+  }
+
+
+
   let agrupacion;
   if (clientDetails.NUMERO_SERVICIO<50000){
      agrupacion = 1;
   }else{
      agrupacion = 2;
   }
+  
 
   try {
+    const trama = clientDetails.NUMERO_SERVICIO.toString().padStart(5, '0').slice(-5) + user.id_totem.toString().padStart(5, '0').slice(-5);
+    
     const payload = debtData.map(debt => ({
       monto: debt.SALDO,
-      glosa: "Pago TOTEM WS por sistema",
+      glosa: "Pago TOTEM WS por sistema." + " rut ingresado en totem " + formattedRutDepositante,
       NUMSOC: clientDetails.NUMERO_SERVICIO,
       NUMFACTUR: debt.NUMFACTUR,
-      usuario: user.NombreUsuario,
-      Sucursal: user.Sucursal,  
+      usuario: user.usuario,
+      Sucursal: user.sucursal,  
       ID_AGRUPACION_CONTABLE: agrupacion,
-      idTerminal: 80000382,  //cambiar
-      serialNumber: "232UKD8Y7539",  //cambiar
-      amount: totalDebt, // Se mantiene el monto total para cada pago según tu indicación
-      ticketNumber: "1235", //cambiar
-      saleType: 0, //consultar
-      employeeId: 1,  //consultar
-      customId: "000011111222222", //consultar
+      idTerminal: user.pos_idterminal, 
+      serialNumber: user.pos_serialnumber,  
+      amount: totalDebt, 
+      ticketNumber:trama , //cambiar
+      saleType: 1, //consultar
+      employeeId: user.id_totem,  
+      customId: customId, //consultar
     }));
-    console.log("5555555555555555555555555555555555555555555555555555555555");
+
     const response=await PostAbonos(payload);
-    console.log("6666666666666666666666666666666666666666666666666666666666");  
-    console.log(response);
-    
+
     setOperationResult({ success: true, message: "Pago realizado con éxito" });
     setShowOperationPopup(true);
     generatePaymentReceiptContent(clientDetails, debtData, totalDebt);
   } catch (error) {
+    console.log(error); 
     const errorMessage = error.message || "Error al realizar el pago";
     setOperationResult({ success: false, message: errorMessage });
     setShowOperationPopup(true);

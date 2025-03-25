@@ -2,7 +2,7 @@ import axios from 'axios';
 
 export async function getDetallePagos(nroServicio) {
     try {
-        console.log('entrando a getDetallePagos');
+       
         const response = await axios.post(`/api/cuenta/`, { nroservice: nroServicio });
         return response.data;
     } catch (error) {
@@ -13,7 +13,7 @@ export async function getDetallePagos(nroServicio) {
 
 export async function checkClienteExiste(nroServicio) {
     try {
-        console.log('entrando a checkClienteExiste');
+       
         const response = await axios.get(`/api/verificar/${nroServicio}`);
         return response.data;
     } catch (error) {

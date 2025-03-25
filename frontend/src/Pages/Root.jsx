@@ -1,9 +1,14 @@
-import{authProvider} from ''
+// Root.jsx
+import React from 'react';
+import { Outlet } from 'react-router-dom';
+import { AuthProvider } from '../middleware/authContext';
 
-function Root() {
+const Root = () => {
   return (
-    <div>
-      <h1>Root</h1>
-    </div>
+    <AuthProvider>
+      <Outlet />
+    </AuthProvider>
   );
-}
+};
+
+export default Root;

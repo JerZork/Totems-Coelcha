@@ -182,7 +182,7 @@ export const generatePaymentReceiptContent = (clientDetails, selectedDebts, tota
       <div class="section">
         <h3 class="section-title">Comprobante de pago de Energía Eléctrica</h3>
         <table>
-          <tr><td>Centro de Pago:</td><td>${user.Sucursal}</td></tr>
+          <tr><td>Centro de Pago:</td><td>${user.sucursal}</td></tr>
           <tr><td>Nombre de Cliente:</td><td>${clientDetails.RAZON_SOCIAL}</td></tr>
           <tr><td>Dir. Servicio:</td><td>${clientDetails.DIR_NIVEL_AGRUPACION_1_EMPALME}</td></tr>
           <tr><td>Fecha Pago:</td><td>${paymentDate}</td></tr>

@@ -22,7 +22,7 @@ export async function loginGetNet() {
         const response = await axios(config);
 
 
-        console.log('Token de autenticación:', response.data.data.token);
+        console.log('Token de autenticación obtenido', );
 
         return response.data.data.token;
 
@@ -69,7 +69,7 @@ export async function Venta(Token,idTerminal, serialNumber, amount, ticketNumber
    
         const data = JSON.stringify({
             "idTerminal": idTerminal,
-            "idSucursal": 14287,
+            "idSucursal": sucursal,
             "serialNumber": serialNumber,
             "command": 100,
             "amount": amount,
@@ -116,8 +116,8 @@ export async function respuesta_operacion(tsx_transaccion,Token, idTerminal,seri
         };
 
         const response = await axios.request(config);
-        //console.log(JSON.stringify(response.data));
-        console.log(tsx_transaccion);
+     
+
         console.log(response.data);
     
 
