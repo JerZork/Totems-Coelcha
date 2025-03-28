@@ -114,13 +114,8 @@ export async function respuesta_operacion(tsx_transaccion,Token, idTerminal,seri
             },
     
         };
-
         const response = await axios.request(config);
-     
-
         console.log(response.data);
-    
-
         return response;
 
     } catch (error) {
@@ -142,13 +137,10 @@ export async function respuesta_operacion(tsx_transaccion,Token, idTerminal,seri
                     'Authorization': `Bearer ${Token}`
                 },
                 data: data
-        
             };
             const response2 = await axios.request(config2);
             console.log(JSON.stringify(response2.data));
             return response2.data;
-
-            
         } catch (error) {
             console.log(error);
             throw error;

@@ -86,11 +86,8 @@ WHERE C1.fecha = CURDATE();`;
 
 
 export const getPagos = async (nroServicio) => {
-
-
     const setServicioQuery = `SET @servicio=${nroServicio};`;
     const selectQuery = `
-
 SELECT
     T.NUMERO_SERVICIO,
     T.NUMFACTUR,
@@ -143,11 +140,8 @@ FROM (
 GROUP BY T.NUMFACTUR
 HAVING SALDO > 0;
     `;
-
-
     try {
         const result = await AppDataSource.query(selectQuery, [nroServicio, nroServicio, nroServicio]);
-
         return result;
     } catch (error) {
         console.error('Error en la consulta sql', error);

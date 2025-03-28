@@ -8,26 +8,21 @@ export const handlePayAll = async (debtData, clientDetails, totalDebt, setOperat
  
 
   let hora_actual = new Date();
-  hora_actual = hora_actual.getHours() + hora_actual.getMinutes() + hora_actual.getSeconds();
-  const customId = user.pos_serialnumber.slice(-4) + clientDetails.NUMERO_SERVICIO + hora_actual;
-  const rutDepositante = JSON.parse(sessionStorage.getItem("rutDepositante"));
+  hora_actual = hora_actual.getHours() + hora_actual.getMinutes() + hora_actual.getSeconds();         //se obtiene fecha actual
+  const customId = user.pos_serialnumber.slice(-4) + clientDetails.NUMERO_SERVICIO + hora_actual;     //se crea un customid para enviarlo en la bd de getnet
+  const rutDepositante = JSON.parse(sessionStorage.getItem("rutDepositante"));                        //se obtiene rut depositante para usarlo en formato 12345678-9
   let formattedRutDepositante = rutDepositante.replace(/\./g, '');
   if (formattedRutDepositante.length > 10) {
     formattedRutDepositante = formattedRutDepositante.slice(0, 10);
   }
-
-
-
   let agrupacion;
-  if (clientDetails.NUMERO_SERVICIO<50000){
+  if (clientDetails.NUMERO_SERVICIO<50000){                                                           //se diferencia la agrupacion contable
      agrupacion = 1;
   }else{
      agrupacion = 2;
   }
-  
-
   try {
-    const trama = clientDetails.NUMERO_SERVICIO.toString().padStart(5, '0').slice(-5) + user.id_totem.toString().padStart(5, '0').slice(-5);
+    const trama = clientDetails.NUMERO_SERVICIO.toString().padStart(5, '0').slice(-5) + user.id_totem.toString().padStart(5, '0').slice(-5);      //se crea una variable àra darsela al ticketnumber en la boleta del pos getnet
     
     const payload = debtData.map(debt => ({
       monto: debt.SALDO,

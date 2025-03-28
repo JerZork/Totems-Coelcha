@@ -15,11 +15,6 @@ export const AppDataSource = new DataSource({
 
 });
 
-
-
-
-
-
 export async function conectarDB() {
 try {
     await AppDataSource.initialize();
@@ -30,5 +25,4 @@ try {
     process.exit(1);
     
 }
-
 }
